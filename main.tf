@@ -26,6 +26,16 @@ terraform {
     type = string
   }
 
+  resource "azurerm_resource_group" "main" {
+    name = "${var.labelPrefix}-A05-RG"
+    location = "${var.region}"
+    tags = {
+        Class = "CST8918"
+        Assignment = "Lab"
+        Lab = "A05"
+    }
+  }
+
     
 }
 
