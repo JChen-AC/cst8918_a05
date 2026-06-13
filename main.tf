@@ -14,6 +14,18 @@ terraform {
     }
   }
 
+  variable "labelPrefix" {
+    type = string
+    default = "jccst8918"
+  }
+  variable "region" {
+    type = string 
+    default = "canadacentral"
+  }
+  variable "admin_username" {
+    type = string
+  }
+
     
 }
 
