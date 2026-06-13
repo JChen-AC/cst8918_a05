@@ -47,6 +47,19 @@ terraform {
     }
   }
 
+  resource "azurerm_virtual_network" "example"{
+    name = "${var.labelPrefix}vnet"
+    location = "${var.region}"
+    resource_group_name = azurerm_resource_group.main.name    
+    address_space = ["10.0.0.0/16]
+
+    tags={
+        Class = "CST8918"
+        Assignment = "Lab"
+        Lab = "A05"
+    }
+  } 
+
     
 }
 
