@@ -51,7 +51,7 @@ terraform {
     name = "${var.labelPrefix}vnet"
     location = "${var.region}"
     resource_group_name = azurerm_resource_group.main.name    
-    address_space = ["10.0.0.0/16]
+    address_space = ["10.0.0.0/16"]
 
     tags={
         Class = "CST8918"
@@ -63,7 +63,7 @@ terraform {
     name = "${var.labelPrefix}subnet"
     resource_group_name = azurerm_resource_group.main.name    
     virtual_network_name = azurerm_virtual_network.example.name
-    address_space = ["10.0.1.0/24]    
+    address_prefixes = ["10.0.1.0/24"]    
   }
 
   resource "azurerm_network_security_group" "example" {
@@ -73,8 +73,8 @@ terraform {
 
     security_rule{
       name = "sshaccess"
-      priority=100
-      direction "Inbound"
+      priority = 100
+      direction = "Inbound"
       access = "Allow"
       protocol = "Tcp"
       source_port_range = "*"
@@ -86,7 +86,7 @@ terraform {
     security_rule{
       name = "httpaccess"
       priority=100
-      direction "Inbound"
+      direction = "Inbound"
       access = "Allow"
       protocol = "Tcp"
       source_port_range = "*"
@@ -97,7 +97,7 @@ terraform {
   }
 
   resource "azurerm_network_interface" "example" {
-    name = "${var.labelPrefix}nsg"
+    name = "${var.labelPrefix}nic"
     location = "${var.region}"
     resource_group_name = azurerm_resource_group.main.name   
 
@@ -110,7 +110,7 @@ terraform {
   }
 
   resource "azurerm_subnet_network_security_group_association" "example"{
-    subnet_id = azurerm.subnet.example.id
+    subnet_id = azurerm_subnet.example.id
     network_security_group_id = azurerm_network_security_group.example.id    
   }
 
@@ -126,7 +126,7 @@ terraform {
   }
 
   resource "azurerm_linux_virtual_machine" "main"{
-    name = "${var.labelPrefix}vnet"
+    name = "${var.labelPrefix}vm"
     location = "${var.region}"
     resource_group_name = azurerm_resource_group.main.name    
     network_interface_ids = [azurerm_network_interface.example.id]
@@ -135,8 +135,8 @@ terraform {
     admin_username = "${var.admin_username}"
     disable_password_authentication = true
 
-    admint_ssh_key {
-      username = "adminuser"
+    admin_ssh_key {
+      username = "${var.admin_username}"
       public_key = file("~/.ssh/cst8918a05.pub)
     }
 
@@ -145,7 +145,7 @@ terraform {
       storage_account_type = "Standard_LRS"
     }
 
-    storage_image_reference {
+    source_image_reference {
       publisher = "Canonical"
       offer = "0001-com-ubuntu-server-jammy"
       sku = "22_04-lts"
@@ -166,7 +166,7 @@ terraform {
     description ="Resource Group Name"
   }
   output "public_ip"{
-    value = azurerm_public_ip.example.public_ip_address_id
+    value = azurerm_public_ip.example.ip_address
     description = "The public ip"
   }
     
