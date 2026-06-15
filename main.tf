@@ -160,6 +160,15 @@ terraform {
         Lab = "A05"
     }
   }
+
+  output "rg_name" {
+    value = azurerm_resource_group.main.name
+    description ="Resource Group Name"
+  }
+  output "public_ip"{
+    value = azurerm_public_ip.example.public_ip_address_id
+    description = "The public ip"
+  }
     
 }
 
