@@ -125,12 +125,25 @@ terraform {
     }
   }
 
-  resource "azurerm_virtual_machine" "main"{
+  resource "azurerm_linux_virtual_machine" "main"{
     name = "${var.labelPrefix}vnet"
     location = "${var.region}"
     resource_group_name = azurerm_resource_group.main.name    
     network_interface_ids = [azurerm_network_interface.example.id]
     vm_size = "Standard_Bs1"
+
+    admin_username = "${var.admin_username}"
+    disable_password_authentication = true
+
+    admint_ssh_key {
+      username = "adminuser"
+      public_key = file("~/.ssh/cst8918a05.pub)
+    }
+
+    os_disk{
+      caching = "ReadWrite"
+      storage_account_type = "Standard_LRS"
+    }
 
     storage_image_reference {
       publisher = "Canonical"
@@ -139,22 +152,7 @@ terraform {
       version = "latest"      
     }
 
-    storage_os_disk {
-      name = "cst8918lab5osdisk1"
-      caching = "ReadWrite"
-      create_option = "FromImage"
-      managed_disk_type = "Standard_LRS"
-    }
-
-    os_profile {
-      compute_name = "hostname
-      admin_username = 
-      admin_password = 
-    }
-
-    os_profile_linux_config {
-      disable_password_authentication = false
-    }
+    custom_data = data.cloudinit_config.example.rendered
 
     tags={
         Class = "CST8918"
