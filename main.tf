@@ -27,6 +27,9 @@ variable "region" {
 variable "admin_username" {
   type = string
 }
+variable "path" {
+  type    = string
+}
 
 resource "azurerm_resource_group" "main" {
   name     = "${var.labelPrefix}-A05-RG"
@@ -87,7 +90,7 @@ resource "azurerm_network_security_group" "example" {
 
   security_rule {
     name                       = "httpaccess"
-    priority                   = 100
+    priority                   = 110
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -139,7 +142,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = file("~/.ssh/cst8918a05.pub")
+    public_key = file("${var.path}/cst8918a05_rsa.pub")
   }
 
   os_disk {
