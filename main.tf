@@ -12,16 +12,16 @@ terraform {
       source  = "hashicorp/cloudinit"
       version = "2.3.3"
     }
-  }  
-    
+  }
+
 }
 
 variable "labelPrefix" {
-  type = string
+  type    = string
   default = "jccst8918"
 }
 variable "region" {
-  type = string 
+  type    = string
   default = "canadacentral"
 }
 variable "admin_username" {
@@ -29,146 +29,146 @@ variable "admin_username" {
 }
 
 resource "azurerm_resource_group" "main" {
-  name = "${var.labelPrefix}-A05-RG"
-  location = "${var.region}"
+  name     = "${var.labelPrefix}-A05-RG"
+  location = var.region
   tags = {
-      Class = "CST8918"
-      Assignment = "Lab"
-      Lab = "A05"
+    Class      = "CST8918"
+    Assignment = "Lab"
+    Lab        = "A05"
   }
 }
 resource "azurerm_public_ip" "example" {
-  name = "${var.labelPrefix}publicip"
+  name                = "${var.labelPrefix}publicip"
   resource_group_name = azurerm_resource_group.main.name
-  location = "${var.region}"
-  allocation_method = "Static"
-  tags={
-      Class = "CST8918"
-      Assignment = "Lab"
-      Lab = "A05"
+  location            = var.region
+  allocation_method   = "Static"
+  tags = {
+    Class      = "CST8918"
+    Assignment = "Lab"
+    Lab        = "A05"
   }
 }
 
-resource "azurerm_virtual_network" "example"{
-  name = "${var.labelPrefix}vnet"
-  location = "${var.region}"
-  resource_group_name = azurerm_resource_group.main.name    
-  address_space = ["10.0.0.0/16"]
+resource "azurerm_virtual_network" "example" {
+  name                = "${var.labelPrefix}vnet"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.main.name
+  address_space       = ["10.0.0.0/16"]
 
-  tags={
-      Class = "CST8918"
-      Assignment = "Lab"
-      Lab = "A05"
+  tags = {
+    Class      = "CST8918"
+    Assignment = "Lab"
+    Lab        = "A05"
   }
-} 
-resource "azurerm_subnet" "example"{
-  name = "${var.labelPrefix}subnet"
-  resource_group_name = azurerm_resource_group.main.name    
+}
+resource "azurerm_subnet" "example" {
+  name                 = "${var.labelPrefix}subnet"
+  resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes = ["10.0.1.0/24"]    
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_network_security_group" "example" {
-  name = "${var.labelPrefix}nsg"
-  location = "${var.region}"
-  resource_group_name = azurerm_resource_group.main.name    
+  name                = "${var.labelPrefix}nsg"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.main.name
 
-  security_rule{
-    name = "sshaccess"
-    priority = 100
-    direction = "Inbound"
-    access = "Allow"
-    protocol = "Tcp"
-    source_port_range = "*"
-    destination_port_range = "22"
-    source_address_prefix = "*"
+  security_rule {
+    name                       = "sshaccess"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
-  security_rule{
-    name = "httpaccess"
-    priority=100
-    direction = "Inbound"
-    access = "Allow"
-    protocol = "Tcp"
-    source_port_range = "*"
-    destination_port_range = "80"
-    source_address_prefix = "*"
+  security_rule {
+    name                       = "httpaccess"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 }
 
 resource "azurerm_network_interface" "example" {
-  name = "${var.labelPrefix}nic"
-  location = "${var.region}"
-  resource_group_name = azurerm_resource_group.main.name   
+  name                = "${var.labelPrefix}nic"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.main.name
 
-  ip_configuration{
-    name = "vmnic"
-    subnet_id = azurerm_subnet.example.id
+  ip_configuration {
+    name                          = "vmnic"
+    subnet_id                     = azurerm_subnet.example.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.example.id
+    public_ip_address_id          = azurerm_public_ip.example.id
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "example"{
-  subnet_id = azurerm_subnet.example.id
-  network_security_group_id = azurerm_network_security_group.example.id    
+resource "azurerm_subnet_network_security_group_association" "example" {
+  subnet_id                 = azurerm_subnet.example.id
+  network_security_group_id = azurerm_network_security_group.example.id
 }
 
-data "cloudinit_config" "example"{
-  gzip = false
+data "cloudinit_config" "example" {
+  gzip          = false
   base64_encode = true
 
   part {
-    filename = "init.sh"
+    filename     = "init.sh"
     content_type = "text/x-shellscript"
-    content = file("init.sh")
+    content      = file("init.sh")
   }
 }
 
-resource "azurerm_linux_virtual_machine" "main"{
-  name = "${var.labelPrefix}vm"
-  location = "${var.region}"
-  resource_group_name = azurerm_resource_group.main.name    
+resource "azurerm_linux_virtual_machine" "main" {
+  name                  = "${var.labelPrefix}vm"
+  location              = var.region
+  resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.example.id]
-  vm_size = "Standard_B2s"
+  size               = "Standard_B2s"
 
-  admin_username = "${var.admin_username}"
+  admin_username                  = var.admin_username
   disable_password_authentication = true
 
   admin_ssh_key {
-    username = "${var.admin_username}"
-    public_key = file("~/.ssh/cst8918a05.pub)
+    username   = var.admin_username
+    public_key = file("~/.ssh/cst8918a05.pub")
   }
 
-  os_disk{
-    caching = "ReadWrite"
+  os_disk {
+    caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
     publisher = "Canonical"
-    offer = "0001-com-ubuntu-server-jammy"
-    sku = "22_04-lts"
-    version = "latest"      
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
   }
 
   custom_data = data.cloudinit_config.example.rendered
 
-  tags={
-      Class = "CST8918"
-      Assignment = "Lab"
-      Lab = "A05"
+  tags = {
+    Class      = "CST8918"
+    Assignment = "Lab"
+    Lab        = "A05"
   }
 }
 
 output "rg_name" {
-  value = azurerm_resource_group.main.name
-  description ="Resource Group Name"
+  value       = azurerm_resource_group.main.name
+  description = "Resource Group Name"
 }
-output "public_ip"{
-  value = azurerm_public_ip.example.ip_address
+output "public_ip" {
+  value       = azurerm_public_ip.example.ip_address
   description = "The public ip"
 }
 
