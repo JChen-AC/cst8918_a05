@@ -130,7 +130,7 @@ terraform {
     location = "${var.region}"
     resource_group_name = azurerm_resource_group.main.name    
     network_interface_ids = [azurerm_network_interface.example.id]
-    vm_size = "Standard_Bs1"
+    vm_size = "Standard_B2s"
 
     admin_username = "${var.admin_username}"
     disable_password_authentication = true
