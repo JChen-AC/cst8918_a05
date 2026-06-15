@@ -116,7 +116,7 @@ terraform {
     network_security_group_id = azurerm_network_security_group.example.id    
   }
 
-  resource "cloudinit_config" "example"{
+  data "cloudinit_config" "example"{
     gzip = false
     base64_encode = true
 
