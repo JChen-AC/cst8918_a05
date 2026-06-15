@@ -115,7 +115,17 @@ terraform {
     subnet_id = azurerm.subnet.example.id
     network_security_group_id = azurerm_network_security_group.example.id    
   }
-  
+
+  resource "cloudinit_config" "example"{
+    gzip = false
+    base64_encode = true
+
+    part {
+      filename = "init.sh"
+      content_type = "text/x-shellscript"
+      content = file("init.sh")
+    }
+  }
     
 }
 
