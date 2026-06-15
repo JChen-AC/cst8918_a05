@@ -106,8 +106,6 @@ terraform {
       subnet_id = azurerm_subnet.example.id
       private_ip_address_allocation = "Dynamic"
       public_ip_address_id = azurerm_public_ip.example.id
-
-
     }
   }
 
@@ -124,6 +122,44 @@ terraform {
       filename = "init.sh"
       content_type = "text/x-shellscript"
       content = file("init.sh")
+    }
+  }
+
+  resource "azurerm_virtual_machine" "main"{
+    name = "${var.labelPrefix}vnet"
+    location = "${var.region}"
+    resource_group_name = azurerm_resource_group.main.name    
+    network_interface_ids = [azurerm_network_interface.example.id]
+    vm_size = "Standard_Bs1"
+
+    storage_image_reference {
+      publisher = "Canonical"
+      offer = "0001-com-ubuntu-server-jammy"
+      sku = "22_04-lts"
+      version = "latest"      
+    }
+
+    storage_os_disk {
+      name = "cst8918lab5osdisk1"
+      caching = "ReadWrite"
+      create_option = "FromImage"
+      managed_disk_type = "Standard_LRS"
+    }
+
+    os_profile {
+      compute_name = "hostname
+      admin_username = 
+      admin_password = 
+    }
+
+    os_profile_linux_config {
+      disable_password_authentication = false
+    }
+
+    tags={
+        Class = "CST8918"
+        Assignment = "Lab"
+        Lab = "A05"
     }
   }
     
