@@ -60,12 +60,41 @@ terraform {
     }
   } 
   resource "azurerm_subnet" "example"{
-    name = "${var.labelPrefix}vnet"
+    name = "${var.labelPrefix}subnet"
     resource_group_name = azurerm_resource_group.main.name    
     virtual_network_name = azurerm_virtual_network.example.name
     address_space = ["10.0.1.0/24]    
   }
 
+  resource "azurerm_network_security_group" "example" {
+    name = "${var.labelPrefix}nsg"
+    location = "${var.region}"
+    resource_group_name = azurerm_resource_group.main.name    
+
+    security_rule{
+      name = "sshaccess"
+      priority=100
+      direction "Inbound"
+      access = "Allow"
+      protocol = "Tcp"
+      source_port_range = "*"
+      destination_port_range = "22"
+      source_address_prefix = "*"
+      destination_address_prefix = "*"
+    }
+
+    security_rule{
+      name = "httpaccess"
+      priority=100
+      direction "Inbound"
+      access = "Allow"
+      protocol = "Tcp"
+      source_port_range = "*"
+      destination_port_range = "80"
+      source_address_prefix = "*"
+      destination_address_prefix = "*"
+    }
+  }
     
 }
 
